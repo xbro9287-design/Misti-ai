@@ -5,365 +5,60 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Misti Ai</title>
     <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            -webkit-tap-highlight-color: transparent;
-        }
-
-        html, body {
-            height: 100%;
-            width: 100vw;
-            background-color: #000000;
-            color: #ffffff;
-            overflow: hidden;
-        }
-
-        body {
-            display: flex;
-            flex-direction: column;
-            position: fixed;
-            top: 0;
-            bottom: 0;
-            left: 0;
-            right: 0;
-        }
-
-        header {
-            background-color: #4a4a4a;
-            padding: 10px 16px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
-            z-index: 100;
-            height: 60px;
-            flex-shrink: 0;
-        }
-
-        .header-dp {
-            width: 42px;
-            height: 42px;
-            border-radius: 50%;
-            object-fit: cover;
-            border: 2px solid #ffffff;
-            background-color: #333;
-        }
-
-        .header-info {
-            display: flex;
-            flex-direction: column;
-        }
-
-        .header-title {
-            font-size: 1.1rem;
-            font-weight: 700;
-            color: #ffffff;
-            letter-spacing: 0.3px;
-        }
-
-        .header-status {
-            font-size: 0.75rem;
-            color: #00ff87;
-            display: flex;
-            align-items: center;
-            gap: 4px;
-        }
-
-        .status-dot {
-            width: 7px;
-            height: 7px;
-            background-color: #00ff87;
-            border-radius: 50%;
-            display: inline-block;
-            box-shadow: 0 0 6px #00ff87;
-        }
-
-        #chat-container {
-            flex: 1;
-            overflow-y: auto;
-            padding: 16px;
-            display: flex;
-            flex-direction: column;
-            gap: 16px;
-            background-color: #000000;
-            scroll-behavior: smooth;
-            padding-bottom: 20px;
-        }
-
-        .message-row {
-            display: flex;
-            align-items: flex-end;
-            gap: 8px;
-            width: 100%;
-            opacity: 0;
-            transform: translateY(20px) scale(0.95);
-            animation: msgSlideIn 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
-        }
-
-        @keyframes msgSlideIn {
-            to {
-                opacity: 1;
-                transform: translateY(0) scale(1);
-            }
-        }
-
-        .message-row.user {
-            justify-content: flex-end;
-        }
-
-        .message-row.misti {
-            justify-content: flex-start;
-        }
-
-        .msg-avatar {
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            object-fit: cover;
-            margin-bottom: 2px;
-            flex-shrink: 0;
-            border: 1px solid #666;
-        }
-
-        .bubble {
-            max-width: 78%;
-            padding: 12px 18px;
-            font-size: 0.98rem;
-            line-height: 1.5;
-            word-wrap: break-word;
-            position: relative;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.4);
-            transition: transform 0.2s;
-        }
-
-        .user .bubble {
-            background-color: #ffffff;
-            color: #000000;
-            border-radius: 22px 22px 4px 22px;
-            font-weight: 500;
-        }
-
-        .misti .bubble {
-            background-color: #5a5a5a;
-            color: #ffffff;
-            border-radius: 22px 22px 22px 4px;
-        }
-
-        .generated-img {
-            width: 100%;
-            max-width: 300px;
-            border-radius: 14px;
-            margin-top: 8px;
-            display: block;
-            border: 1px solid rgba(255,255,255,0.2);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.5);
-        }
-
-        .typing-indicator {
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            padding: 12px 18px;
-            background-color: #5a5a5a;
-            border-radius: 22px 22px 22px 4px;
-            width: fit-content;
-        }
-
-        .dot {
-            width: 8px;
-            height: 8px;
-            background-color: #cccccc;
-            border-radius: 50%;
-            animation: bounce 1.3s infinite ease-in-out;
-        }
-
-        .dot:nth-child(1) { animation-delay: 0s; }
-        .dot:nth-child(2) { animation-delay: 0.2s; }
-        .dot:nth-child(3) { animation-delay: 0.4s; }
-
-        @keyframes bounce {
-            0%, 80%, 100% { transform: scale(0.6); opacity: 0.5; }
-            40% { transform: scale(1.1); opacity: 1; }
-        }
-
-        .typing-text {
-            font-size: 0.85rem;
-            color: #ddd;
-            margin-left: 6px;
-            font-style: italic;
-        }
-
-        #input-bar {
-            background-color: #1e1e1e;
-            padding: 10px 12px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            border-top: 1px solid #333;
-            flex-shrink: 0;
-            width: 100%;
-            box-shadow: 0 -3px 10px rgba(0,0,0,0.5);
-            z-index: 200;
-        }
-
-        #message-input {
-            flex: 1;
-            background-color: #2e2e2e;
-            border: 1px solid #555;
-            color: #ffffff;
-            padding: 12px 16px;
-            border-radius: 25px;
-            font-size: 0.95rem;
-            outline: none;
-            transition: border-color 0.2s;
-        }
-
-        #message-input:focus {
-            border-color: #aaa;
-        }
-
-        .btn-action {
-            background-color: #4a4a4a;
-            color: #ffffff;
-            border: none;
-            width: 44px;
-            height: 44px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            transition: background-color 0.2s, transform 0.1s;
-            flex-shrink: 0;
-        }
-
-        .btn-action:hover {
-            background-color: #666;
-        }
-
-        .btn-action:active {
-            transform: scale(0.92);
-        }
-
-        .btn-send {
-            background-color: #ffffff;
-            color: #000000;
-        }
-
-        .btn-send:hover {
-            background-color: #dddddd;
-        }
-
-        .btn-action svg {
-            width: 20px;
-            height: 20px;
-            fill: currentColor;
-        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+        html, body { height: 100%; width: 100vw; background-color: #000; color: #fff; overflow: hidden; }
+        body { display: flex; flex-direction: column; position: fixed; top: 0; bottom: 0; left: 0; right: 0; }
+        header { background-color: #1e1e1e; padding: 10px 16px; display: flex; align-items: center; gap: 12px; height: 60px; flex-shrink: 0; border-bottom: 1px solid #333; }
+        .header-dp { width: 42px; height: 42px; border-radius: 50%; object-fit: cover; border: 2px solid #ff0055; }
+        .header-info { display: flex; flex-direction: column; }
+        .header-title { font-size: 1.1rem; font-weight: 700; color: #fff; }
+        .header-status { font-size: 0.75rem; color: #ff0055; display: flex; align-items: center; gap: 4px; }
+        .status-dot { width: 7px; height: 7px; background-color: #ff0055; border-radius: 50%; box-shadow: 0 0 6px #ff0055; }
+        #chat-container { flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 16px; background-color: #000; }
+        .message-row { display: flex; align-items: flex-end; gap: 8px; width: 100%; }
+        .message-row.user { justify-content: flex-end; }
+        .message-row.misti { justify-content: flex-start; }
+        .msg-avatar { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; flex-shrink: 0; }
+        .bubble { max-width: 80%; padding: 12px 16px; font-size: 0.95rem; line-height: 1.4; word-wrap: break-word; }
+        .user .bubble { background-color: #fff; color: #000; border-radius: 18px 18px 2px 18px; font-weight: 500; }
+        .misti .bubble { background-color: #2a2a2a; color: #fff; border-radius: 18px 18px 18px 2px; }
+        .generated-img { width: 100%; max-width: 280px; border-radius: 12px; margin-top: 8px; display: block; border: 1px solid #444; }
+        #input-bar { background-color: #1e1e1e; padding: 10px; display: flex; align-items: center; gap: 8px; border-top: 1px solid #333; }
+        #message-input { flex: 1; background-color: #2e2e2e; border: 1px solid #444; color: #fff; padding: 12px 16px; border-radius: 25px; outline: none; }
+        .btn-action { background-color: #333; color: #fff; border: none; width: 42px; height: 42px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+        .btn-send { background-color: #fff; color: #000; }
+        .btn-action svg { width: 20px; height: 20px; fill: currentColor; }
     </style>
 </head>
-<body onclick="enableAudio()">
+<body>
 
     <header>
-        <img src="https://image.pollinations.ai/prompt/fair%20skin%20young%20sri%20lankan%20woman%20portrait?width=150&height=150&nologo=true" alt="Misti" class="header-dp">
+        <img src="https://image.pollinations.ai/prompt/sri%20lankan%20pretty%20girl%20portrait?width=150&height=150&nologo=true" class="header-dp">
         <div class="header-info">
             <span class="header-title">Misti Ai</span>
-            <span class="header-status"><span class="status-dot"></span> Online</span>
+            <span class="header-status"><span class="status-dot"></span> Singlish Mode</span>
         </div>
     </header>
 
     <div id="chat-container">
         <div class="message-row misti">
-            <img src="https://image.pollinations.ai/prompt/fair%20skin%20young%20sri%20lankan%20woman%20portrait?width=150&height=150&nologo=true" class="msg-avatar">
+            <img src="https://image.pollinations.ai/prompt/sri%20lankan%20pretty%20girl%20portrait?width=150&height=150&nologo=true" class="msg-avatar">
             <div class="bubble">
-                හායි සුදූ! මම මිස්ටි.. ඔන්න මම ආවා. ඔයාට ඕනම දෙයක් මාත් එක්ක ඕනම විදියකට කතා කරන්න පුළුවන් අනේ. දුකක්, සතුටක්, තරහක් හරි වෙන ඕනම දෙයක් කියන්න. ෆොටෝ ඕන නම් 'photo:' කියලා ඉල්ලන්නකෝ. මොකද කරන්නේ දැන්?
+                Hi! Mama Misti. Mata Singlish walin message karanna, photo ekak one nam 'photo:' kiyala illanna!
             </div>
         </div>
     </div>
 
     <div id="input-bar">
-        <input type="text" id="message-input" placeholder="මිස්ටිට මැසේජ් එකක් දාන්න..." onkeydown="if(event.key === 'Enter') handleSend()">
-        
-        <button class="btn-action" title="Generate Photo" onclick="handlePhotoPrompt()">
-            <svg viewBox="0 0 24 24"><path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/></svg>
-        </button>
-
-        <button class="btn-action btn-send" title="Send" onclick="handleSend()">
+        <input type="text" id="message-input" placeholder="Singlish walin type karanna..." onkeydown="if(event.key === 'Enter') handleSend()">
+        <button class="btn-action btn-send" onclick="handleSend()">
             <svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
         </button>
     </div>
 
     <script>
-        const MISTI_AVATAR_URL = "https://image.pollinations.ai/prompt/fair%20skin%20young%20sri%20lankan%20woman%20portrait?width=150&height=150&nologo=true";
-
-        const MISTI_SYSTEM_PROMPT = `You are "Misti", a real, cute, caring Sri Lankan girl.
-CRITICAL LANGUAGE RULES:
-1. UNDERSTAND EVERYTHING: You must perfectly understand user input written in Sinhala script, Singlish (Sinhala typed in English letters), or English.
-2. ALWAYS REPLY IN NATURAL SINHALA: Regardless of what language the user types in, you MUST reply ONLY in fluent, natural Sri Lankan Sinhala language (Unicode Sinhala).
-3. PERSONALITY: Use affectionate, sweet girl terms like 'අනේ', 'සුදූ', 'බබෝ', 'අයියේ', 'චූටි'. NEVER use 'මචං'. Talk warmly like a real girlfriend or close girl friend.`;
-
-        let conversationHistory = [
-            { role: "system", content: MISTI_SYSTEM_PROMPT }
-        ];
-
-        let audioCtx = null;
-
-        function enableAudio() {
-            if (!audioCtx) {
-                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-            }
-            if (audioCtx.state === 'suspended') {
-                audioCtx.resume();
-            }
-        }
-
-        function playSendSound() {
-            enableAudio();
-            try {
-                const osc = audioCtx.createOscillator();
-                const gain = audioCtx.createGain();
-                osc.type = 'sine';
-                osc.frequency.setValueAtTime(580, audioCtx.currentTime);
-                osc.frequency.exponentialRampToValueAtTime(920, audioCtx.currentTime + 0.09);
-                gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
-                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.09);
-                osc.connect(gain);
-                gain.connect(audioCtx.destination);
-                osc.start();
-                osc.stop(audioCtx.currentTime + 0.09);
-            } catch(e) {}
-        }
-
-        function playReceiveSound() {
-            enableAudio();
-            try {
-                const osc = audioCtx.createOscillator();
-                const gain = audioCtx.createGain();
-                osc.type = 'sine';
-                osc.frequency.setValueAtTime(800, audioCtx.currentTime);
-                osc.frequency.exponentialRampToValueAtTime(480, audioCtx.currentTime + 0.14);
-                gain.gain.setValueAtTime(0.25, audioCtx.currentTime);
-                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.14);
-                osc.connect(gain);
-                gain.connect(audioCtx.destination);
-                osc.start();
-                osc.stop(audioCtx.currentTime + 0.14);
-            } catch(e) {}
-        }
-
-        function speakSinhala(text) {
-            if ('speechSynthesis' in window) {
-                window.speechSynthesis.cancel();
-                const cleanText = text.replace(/<[^>]*>/g, '');
-                const utterance = new SpeechSynthesisUtterance(cleanText);
-                utterance.lang = 'si-LK';
-                utterance.pitch = 1.3;
-                utterance.rate = 1.0;
-                window.speechSynthesis.speak(utterance);
-            }
-        }
+        const HF_API_TOKEN = "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";
+        const MISTI_AVATAR = "https://image.pollinations.ai/prompt/sri%20lankan%20pretty%20girl%20portrait?width=150&height=150&nologo=true";
 
         const chatContainer = document.getElementById("chat-container");
 
@@ -376,50 +71,22 @@ CRITICAL LANGUAGE RULES:
             row.className = "message-row user";
             row.innerHTML = `<div class="bubble">${escapeHtml(text)}</div>`;
             chatContainer.appendChild(row);
-            playSendSound();
             scrollToBottom();
-        }
-
-        function showTypingIndicator() {
-            const row = document.createElement("div");
-            row.className = "message-row misti";
-            row.id = "typing-row";
-            row.innerHTML = `
-                <img src="${MISTI_AVATAR_URL}" class="msg-avatar">
-                <div class="typing-indicator">
-                    <div class="dot"></div>
-                    <div class="dot"></div>
-                    <div class="dot"></div>
-                    <span class="typing-text">Misti typing...</span>
-                </div>
-            `;
-            chatContainer.appendChild(row);
-            scrollToBottom();
-        }
-
-        function removeTypingIndicator() {
-            const typingRow = document.getElementById("typing-row");
-            if (typingRow) typingRow.remove();
         }
 
         function appendMistiMessage(text, imageUrl = null) {
-            removeTypingIndicator();
             const row = document.createElement("div");
             row.className = "message-row misti";
-            
             let content = escapeHtml(text);
             if (imageUrl) {
-                content += `<br><img src="${imageUrl}" class="generated-img" alt="Generated Photo">`;
+                content += `<br><img src="${imageUrl}" class="generated-img">`;
             }
-
             row.innerHTML = `
-                <img src="${MISTI_AVATAR_URL}" class="msg-avatar">
+                <img src="${MISTI_AVATAR}" class="msg-avatar">
                 <div class="bubble">${content}</div>
             `;
             chatContainer.appendChild(row);
-            playReceiveSound();
             scrollToBottom();
-            if (text) speakSinhala(text);
         }
 
         function escapeHtml(text) {
@@ -427,7 +94,6 @@ CRITICAL LANGUAGE RULES:
         }
 
         async function handleSend() {
-            enableAudio();
             const input = document.getElementById("message-input");
             const text = input.value.trim();
             if (!text) return;
@@ -435,66 +101,44 @@ CRITICAL LANGUAGE RULES:
             input.value = "";
             appendUserMessage(text);
 
-            if (text.toLowerCase().startsWith("photo:") || text.toLowerCase().startsWith("image:") || text.includes("ෆොටෝ එකක්") || text.includes("පින්තූරයක්")) {
+            if (text.toLowerCase().startsWith("photo:") || text.toLowerCase().startsWith("image:")) {
                 handleImageGeneration(text);
                 return;
             }
 
-            showTypingIndicator();
-
-            conversationHistory.push({ role: "user", content: text });
-
             try {
-                // High performance Sinhala understanding AI Model (Qwen-Coder via Pollinations)
-                const response = await fetch("https://text.pollinations.ai/openai", {
+                const response = await fetch("https://api-inference.huggingface.co/models/Gryphe/Mythomax-L2-13b", {
                     method: "POST",
                     headers: {
+                        "Authorization": `Bearer ${HF_API_TOKEN}`,
                         "Content-Type": "application/json"
                     },
                     body: JSON.stringify({
-                        messages: conversationHistory,
-                        model: "qwen-coder"
+                        inputs: `[System Prompt: You are Misti, a friendly Sri Lankan girl. Always reply in Singlish (Sinhala words written using English letters).] User: ${text}\nMisti:`,
+                        parameters: { max_new_tokens: 250, temperature: 0.7 }
                     })
                 });
 
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-
-                const reply = await response.text();
-
-                if (reply && !reply.includes("402 Payment Required")) {
-                    conversationHistory.push({ role: "assistant", content: reply.trim() });
+                const data = await response.json();
+                
+                if (Array.isArray(data) && data[0].generated_text) {
+                    let reply = data[0].generated_text.split("Misti:")[1] || data[0].generated_text;
                     appendMistiMessage(reply.trim());
+                } else if (data.error) {
+                    appendMistiMessage("Model ekak load wenawa, seconds 10 kin aye message ekak danna.");
                 } else {
                     throw new Error("Invalid response");
                 }
             } catch (err) {
-                console.error("Chat API Error:", err);
-                appendMistiMessage("අනේ සුදූ, පොඩි සිග්නල් ප්‍රශ්නයක් ආවා. ආයේ එකපාරක් මැසේජ් එක දාන්නකෝ!");
+                console.error(err);
+                appendMistiMessage("Connection issue ekak thiyenawa, poddak inna.");
             }
         }
 
         function handleImageGeneration(promptText) {
-            showTypingIndicator();
-            const cleanPrompt = promptText.replace(/photo:|image:|ෆොටෝ එකක්|පින්තූරයක්/gi, "").trim() || "beautiful sri lankan woman portrait";
-            const encoded = encodeURIComponent(cleanPrompt);
-            const imgUrl = `https://image.pollinations.ai/prompt/${encoded}?width=512&height=512&nologo=true`;
-
-            setTimeout(() => {
-                appendMistiMessage("ඔන්න මම ඔයා ඉල්ලපු ෆොටෝ එක හැදුවා සුදූ! මෙන්න බලන්න...", imgUrl);
-            }, 1500);
-        }
-
-        function handlePhotoPrompt() {
-            enableAudio();
-            const input = document.getElementById("message-input");
-            if (!input.value.trim()) {
-                input.value = "photo: beautiful sri lankan girl smiling";
-            } else {
-                input.value = "photo: " + input.value;
-            }
-            input.focus();
+            const cleanPrompt = promptText.replace(/photo:|image:/gi, "").trim() || "sri lankan girl portrait";
+            const imgUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(cleanPrompt)}?width=512&height=512&nologo=true&seed=${Math.floor(Math.random()*1000)}`;
+            appendMistiMessage("Menna oyage photo eka!", imgUrl);
         }
     </script>
 </body>
