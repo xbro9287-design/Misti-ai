@@ -423,7 +423,6 @@ STRICT RULE 2: Act 100% like a real human young woman with deep emotions:
             return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
         }
 
-        // 100% Free Anonymous GET Endpoint Fix for Pollinations (Fixes 402 Payment Required Error)
         async function handleSend() {
             enableAudio();
             const input = document.getElementById("message-input");
@@ -441,20 +440,50 @@ STRICT RULE 2: Act 100% like a real human young woman with deep emotions:
             showTypingIndicator();
 
             try {
-                const encodedPrompt = encodeURIComponent(text);
-                const encodedSystem = encodeURIComponent(MISTI_SYSTEM_PROMPT);
-                
-                // Anonymous GET call to prevent 402 Payment Required Rate Limits
-                const response = await fetch(`https://text.pollinations.ai/${encodedPrompt}?system=${encodedSystem}&model=openai`);
-                const reply = await response.text();
+                // OpenAI standard API endpoint
+                const response = await fetch("https://gen.pollinations.ai/openai/v1/chat/completions", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        model: "openai",
+                        messages: [
+                            { role: "system", content: MISTI_SYSTEM_PROMPT },
+                            { role: "user", content: text }
+                        ]
+                    })
+                });
 
-                if (response.ok && reply && !reply.includes("KEY_BUDGET_EXHAUSTED") && !reply.includes("402 Payment Required")) {
+                if (!response.ok) {
+                    throw new Error(`Status: ${response.status}`);
+                }
+
+                const data = await response.json();
+                const reply = data.choices?.[0]?.message?.content;
+
+                if (reply) {
                     appendMistiMessage(reply.trim());
                 } else {
-                    throw new Error("Budget Error");
+                    throw new Error("No response text");
                 }
             } catch (err) {
-                console.error("API Error:", err);
+                console.error("Primary API Error:", err);
+                
+                // Backup API Link
+                try {
+                    const promptParam = encodeURIComponent(text);
+                    const fallbackRes = await fetch(`https://text.pollinations.ai/${promptParam}?model=openai`);
+                    const fallbackText = await fallbackRes.text();
+                    
+                    if (fallbackRes.ok && fallbackText) {
+                        appendMistiMessage(fallbackText.trim());
+                        return;
+                    }
+                } catch(e) {
+                    console.error("Fallback Error:", e);
+                }
+                
                 appendMistiMessage("අනේ සුදූ, සිග්නල් අවුලක් ආවා. ආයේ එකපාරක් මැසේජ් එක දාන්නකෝ!");
             }
         }
