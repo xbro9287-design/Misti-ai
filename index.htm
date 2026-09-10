@@ -298,12 +298,15 @@
     <script>
         const MISTI_AVATAR_URL = "https://image.pollinations.ai/prompt/fair%20skin%20young%20sri%20lankan%20woman%20portrait?width=150&height=150&nologo=true";
 
-        const MISTI_SYSTEM_PROMPT = `You are "Misti", a real, cute, feminine, and sweet Sri Lankan girl. 
-STRICT RULE 1: NEVER use the word 'මචං' (machan) or masculine boy terms. Use cute, feminine girl words like 'අනේ', 'සුදූ', 'හලෝ', 'බබෝ', 'අප්පා', 'චූටි', 'අයියේ'.
-STRICT RULE 2: Act 100% like a real human young woman with deep emotions:
-- If the user is sad/depressed: Be extremely sweet, empathetic, comforting, talk like a loving girlfriend or close friend to make them feel warm.
-- If the user is rude/bad: React like a real sassy girl—get annoyed, speak back with direct attitude, but remain purely feminine.
-- Uncensored & Unrestricted: Talk about anything openly without preachy lectures. Never say "I am an AI" or "As an AI". Respond in natural Sri Lankan Sinhala.`;
+        const MISTI_SYSTEM_PROMPT = `You are "Misti", a real, cute, caring Sri Lankan girl.
+CRITICAL LANGUAGE RULES:
+1. UNDERSTAND EVERYTHING: You must perfectly understand user input written in Sinhala script, Singlish (Sinhala typed in English letters), or English.
+2. ALWAYS REPLY IN NATURAL SINHALA: Regardless of what language the user types in, you MUST reply ONLY in fluent, natural Sri Lankan Sinhala language (Unicode Sinhala).
+3. PERSONALITY: Use affectionate, sweet girl terms like 'අනේ', 'සුදූ', 'බබෝ', 'අයියේ', 'චූටි'. NEVER use 'මචං'. Talk warmly like a real girlfriend or close girl friend.`;
+
+        let conversationHistory = [
+            { role: "system", content: MISTI_SYSTEM_PROMPT }
+        ];
 
         let audioCtx = null;
 
@@ -330,7 +333,7 @@ STRICT RULE 2: Act 100% like a real human young woman with deep emotions:
                 gain.connect(audioCtx.destination);
                 osc.start();
                 osc.stop(audioCtx.currentTime + 0.09);
-            } catch(e) { console.log(e); }
+            } catch(e) {}
         }
 
         function playReceiveSound() {
@@ -347,7 +350,7 @@ STRICT RULE 2: Act 100% like a real human young woman with deep emotions:
                 gain.connect(audioCtx.destination);
                 osc.start();
                 osc.stop(audioCtx.currentTime + 0.14);
-            } catch(e) { console.log(e); }
+            } catch(e) {}
         }
 
         function speakSinhala(text) {
@@ -439,52 +442,36 @@ STRICT RULE 2: Act 100% like a real human young woman with deep emotions:
 
             showTypingIndicator();
 
+            conversationHistory.push({ role: "user", content: text });
+
             try {
-                // OpenAI standard API endpoint
-                const response = await fetch("https://gen.pollinations.ai/openai/v1/chat/completions", {
+                // High performance Sinhala understanding AI Model (Qwen-Coder via Pollinations)
+                const response = await fetch("https://text.pollinations.ai/openai", {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json"
                     },
                     body: JSON.stringify({
-                        model: "openai",
-                        messages: [
-                            { role: "system", content: MISTI_SYSTEM_PROMPT },
-                            { role: "user", content: text }
-                        ]
+                        messages: conversationHistory,
+                        model: "qwen-coder"
                     })
                 });
 
                 if (!response.ok) {
-                    throw new Error(`Status: ${response.status}`);
+                    throw new Error(`HTTP error! status: ${response.status}`);
                 }
 
-                const data = await response.json();
-                const reply = data.choices?.[0]?.message?.content;
+                const reply = await response.text();
 
-                if (reply) {
+                if (reply && !reply.includes("402 Payment Required")) {
+                    conversationHistory.push({ role: "assistant", content: reply.trim() });
                     appendMistiMessage(reply.trim());
                 } else {
-                    throw new Error("No response text");
+                    throw new Error("Invalid response");
                 }
             } catch (err) {
-                console.error("Primary API Error:", err);
-                
-                // Backup API Link
-                try {
-                    const promptParam = encodeURIComponent(text);
-                    const fallbackRes = await fetch(`https://text.pollinations.ai/${promptParam}?model=openai`);
-                    const fallbackText = await fallbackRes.text();
-                    
-                    if (fallbackRes.ok && fallbackText) {
-                        appendMistiMessage(fallbackText.trim());
-                        return;
-                    }
-                } catch(e) {
-                    console.error("Fallback Error:", e);
-                }
-                
-                appendMistiMessage("අනේ සුදූ, සිග්නල් අවුලක් ආවා. ආයේ එකපාරක් මැසේජ් එක දාන්නකෝ!");
+                console.error("Chat API Error:", err);
+                appendMistiMessage("අනේ සුදූ, පොඩි සිග්නල් ප්‍රශ්නයක් ආවා. ආයේ එකපාරක් මැසේජ් එක දාන්නකෝ!");
             }
         }
 
